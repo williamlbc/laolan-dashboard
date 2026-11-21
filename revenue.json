@@ -1,6 +1,6 @@
 {
  "meta": {
-  "updatedAt": "2026-11-21 20:04",
+  "updatedAt": "2026-11-21 20:11",
   "unit": "元",
   "note": "金额一律记平台后台原始数字，单位元、保留两位。预估收益与已结算分开记（month=当月累计、total=开户至今累计、pending=待结算），三者不许混算。未采集写 null，页面显示“未采集”，绝不填 0。"
  },
@@ -8,15 +8,15 @@
   {
    "platform": "今日头条",
    "account": "老兰的下半场",
-   "yesterday": null,
+   "yesterday": 0.0,
    "month": null,
-   "total": null,
+   "total": 0.0,
    "pending": null,
    "unit": "元 / 万阅读",
    "cpm": null,
    "settle": "次月结算（以后台为准）",
-   "src": "",
-   "collectAt": ""
+   "src": "头条号后台·首页（累计收益 0 元，昨日无变化）",
+   "collectAt": "2026-11-21 20:12"
   },
   {
    "platform": "微信公众号",
@@ -28,21 +28,21 @@
    "unit": "元 / 万阅读",
    "cpm": null,
    "settle": "流量主·次月结算",
-   "src": "",
-   "collectAt": ""
+   "src": "公众号首页近期发表每篇显示 ¥0.00；流量主统计页未打开，累计未读",
+   "collectAt": "2026-11-21 20:12"
   },
   {
    "platform": "大鱼号",
    "account": "庚子院",
    "yesterday": null,
-   "month": null,
+   "month": 0.0,
    "total": null,
    "pending": null,
    "unit": "元 / 万阅读",
    "cpm": null,
    "settle": "结算中心·次月",
-   "src": "",
-   "collectAt": ""
+   "src": "大鱼号后台·首页（本月收益 ￥0，上月 ￥0）",
+   "collectAt": "2026-11-21 20:12"
   },
   {
    "platform": "百家号",
@@ -62,26 +62,26 @@
    "account": "老兰的下半场",
    "yesterday": null,
    "month": null,
-   "total": null,
+   "total": 0.0,
    "pending": null,
    "unit": "元 / 万阅读",
    "cpm": null,
    "settle": "收益广场·次月",
-   "src": "",
-   "collectAt": ""
+   "src": "企鹅号首页·累计已发布收益 0 元；收益分析页显示“暂无收益”",
+   "collectAt": "2026-11-21 20:12"
   },
   {
    "platform": "知乎",
    "account": "老兰的下半场",
-   "yesterday": null,
+   "yesterday": 0.0,
    "month": null,
-   "total": null,
+   "total": 0.0,
    "pending": null,
    "unit": "元 / 万阅读",
    "cpm": null,
-   "settle": "创作分成·按活动结算",
-   "src": "",
-   "collectAt": ""
+   "settle": "知+自选/内容收益·按活动结算",
+   "src": "知乎创作中心·收益分析（今日 0 / 本周 0 / 累计 0 / 余额 0）",
+   "collectAt": "2026-11-21 20:12"
   }
  ],
  "history": [
@@ -90,6 +90,12 @@
    "platform": "百家号",
    "amount": 0.03,
    "at": "2026-11-21 20:04"
+  },
+  {
+   "month": "2026-11",
+   "platform": "大鱼号",
+   "amount": 0.0,
+   "at": "2026-11-21 20:11"
   }
  ]
 }
