@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老兰的下半场 · 数据中心</title>
+<style>
+:root{
+  --ink:#221e18; --ink2:#55504a; --ink3:#8d857a;
+  --line:#e9e3d8; --bg:#f5f2ec; --card:#fffdf9;
+  --green:#1f8a5b; --green-bg:#e7f4ec;
+  --yellow:#a8730a; --yellow-bg:#fbf1dd;
+  --red:#c0392b; --red-bg:#fbeae8;
+  --accent:#b5533a; --accent-soft:#f6e7e1;
+  --teal:#2f5d50;
+  --shadow:0 1px 2px rgba(60,45,25,.05),0 6px 18px rgba(60,45,25,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1020px;margin:0 auto;padding:0 22px 90px}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ===== 顶部状态带 ===== */
+.statusbar{position:sticky;top:0;z-index:30;background:rgba(245,242,236,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.statusbar-in{max-width:1020px;margin:0 auto;padding:11px 22px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--ink2)}
+.sb-brand{font-weight:700;color:var(--ink);letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.sb-mark{width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.sb-item{display:flex;gap:6px;align-items:center}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block}
+.sb-dot.warn{background:var(--yellow)}
+.sb-link{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(192,57,43,.4);cursor:pointer}
+.sb-light{color:var(--ink3)}
+
+/* ===== 页头 + KPI ===== */
+header.page{padding:36px 0 10px}
+h1{font-size:26px;margin:0 0 6px;letter-spacing:.01em;font-weight:700}
+.sub{color:var(--ink3);font-size:13px;margin:0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.kpi-k{font-size:12px;color:var(--ink3);margin:0 0 6px}
+.kpi-v{font-size:26px;font-weight:700;margin:0;line-height:1.15}
+.kpi-v small{font-size:12px;font-weight:400;color:var(--ink3);margin-left:4px}
+.kpi-note{font-size:11.5px;color:var(--ink3);margin:5px 0 0}
+@media(max-width:760px){.kpis{grid-template-columns:1fr 1fr}}
+
+/* ===== 区块 ===== */
+section{margin-top:34px}
+.sec-label{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.sec-no{width:28px;height:28px;border-radius:9px;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.sec-title{font-size:17px;font-weight:700;margin:0}
+.sec-hint{font-size:12.5px;color:var(--ink3);margin-left:auto}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+.card + .card{margin-top:12px}
+
+/* ===== 今天 ===== */
+.today-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.today-head{padding:20px 24px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fbf8f2,#fffdf9)}
+.today-issue{font-size:12px;color:var(--accent);letter-spacing:.1em;font-weight:600}
+.today-title{font-size:18px;font-weight:700;margin:5px 0 0;line-height:1.5}
+.today-body{padding:4px 24px 10px}
+.task{display:flex;gap:16px;align-items:flex-start;padding:15px 0;border-bottom:1px dashed var(--line)}
+.task:last-child{border-bottom:none}
+.task-time{flex:0 0 64px;font-size:13px;color:var(--ink2);font-weight:600;padding-top:2px}
+.task-main{flex:1}
+.task-name{font-size:14.5px;font-weight:600;margin:0 0 3px}
+.task-note{font-size:12.5px;color:var(--ink3);margin:0}
+.task-right{font-size:12px;padding-top:3px}
+
+.badge{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;line-height:1.7;border:1px solid transparent;white-space:nowrap}
+.b-green{background:var(--green-bg);color:var(--green);border-color:rgba(31,138,91,.22)}
+.b-yellow{background:var(--yellow-bg);color:var(--yellow);border-color:rgba(168,115,10,.22)}
+.b-red{background:var(--red-bg);color:var(--red);border-color:rgba(192,57,43,.22)}
+.b-grey{background:#f1eee7;color:var(--ink3);border-color:var(--line)}
+.b-dark{background:#ece5d8;color:var(--ink);border-color:#ddd3c1}
+
+.nodata{display:inline-block;min-width:52px;text-align:center;font-size:12px;color:var(--ink3);background:repeating-linear-gradient(135deg,#f2eee6 0 6px,#e9e3d8 6px 12px);border:1px dashed #cfc6b4;border-radius:6px;padding:2px 8px;letter-spacing:.06em}
+
+/* ===== 指标 ===== */
+.metricbox{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0 4px}
+@media(max-width:760px){.metricbox{grid-template-columns:1fr 1fr}}
+.metric{background:#faf7f1;border:1px solid var(--line);border-radius:13px;padding:15px 17px}
+.metric-k{font-size:11.5px;color:var(--ink3);letter-spacing:.05em;margin:0 0 5px}
+.metric-v{font-size:23px;font-weight:700;margin:0;line-height:1.2}
+.metric-v small{font-size:12px;font-weight:400;color:var(--ink3);margin-left:3px}
+.metric-note{font-size:11.5px;color:var(--ink3);margin:4px 0 0}
+
+/* ===== 表格 ===== */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-weight:600;color:var(--ink3);font-size:11.5px;letter-spacing:.05em;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:12px 12px;border-bottom:1px solid #f1ece1;vertical-align:middle}
+td.t{max-width:440px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr.wrow:hover td{background:#fbf7ef;cursor:pointer}
+.right{text-align:right}
+.tbl-note{font-size:12px;color:var(--ink3);margin:12px 0 0;line-height:1.8}
+.pdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px;vertical-align:1px}
+
+/* ===== 折线 ===== */
+.chartbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 16px 10px;box-shadow:var(--shadow)}
+.chart-legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink2);padding:0 6px 12px;align-items:center}
+.lg{display:flex;align-items:center;gap:7px}
+.lg i{width:16px;height:2px;background:var(--accent);display:inline-block}
+.lg i.dash{background:transparent;border-top:2px dashed #c58a2a;height:0}
+
+/* ===== 异常 / 粉丝 ===== */
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.anom{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f1ece1;font-size:13px}
+.anom:last-child{border-bottom:none}
+.anom-tag{flex:0 0 104px;font-size:11.5px;color:var(--ink3);padding-top:2px}
+
+/* ===== 抽屉 ===== */
+.mask{position:fixed;inset:0;background:rgba(40,32,22,.34);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.mask.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,94vw);background:#fffdf9;transform:translateX(102%);transition:transform .26s cubic-bezier(.4,0,.2,1);z-index:41;overflow-y:auto;box-shadow:-16px 0 48px rgba(40,32,22,.16)}
+.drawer.on{transform:translateX(0)}
+.dw-head{padding:22px 24px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fffdf9;z-index:2}
+.dw-close{position:absolute;right:16px;top:16px;border:none;background:#f1eee7;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:17px;color:var(--ink2)}
+.dw-h{font-size:12px;color:var(--ink3);letter-spacing:.08em;margin:20px 0 8px}
+.dw-line{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:8px 0;border-bottom:1px dashed #eee6d8}
+.dw-line span:first-child{color:var(--ink3)}
+.op{border:1px solid var(--line);border-radius:11px;padding:12px 14px;font-size:13px;background:#faf7f1;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.op button{border:1px solid #ddd3c1;background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;color:var(--ink3);cursor:not-allowed}
+
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;font-size:12px;color:var(--ink3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<div class="statusbar">
+  <div class="statusbar-in">
+    <span class="sb-brand"><span class="sb-mark">兰</span>老兰的下半场 · 数据中心</span>
+    <span class="sb-item"><i class="sb-dot" id="sbKj"></i><span id="sbKjText">口径</span></span>
+    <span class="sb-item"><span class="sb-link" id="sbAnom"></span></span>
+    <span class="sb-item">上次抓数 <b class="num" id="sbTime" style="font-weight:600;color:var(--ink)"></b></span>
+    <span class="sb-item sb-light" id="sbSrc"></span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<header class="page">
+  <h1>数据中心</h1>
+  <p class="sub">只读快照 · 数字来自抓取或平台面板，未采集一律标“未采集”，不填 0</p>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<section id="s1">
+  <div class="sec-label"><span class="sec-no">1</span><h2 class="sec-title">今天要做什么</h2><span class="sec-hint" id="todayDate"></span></div>
+  <div class="today-card">
+    <div class="today-head">
+      <div class="today-issue" id="todayIssue"></div>
+      <div class="today-title" id="todayTitle"></div>
+    </div>
+    <div class="today-body" id="todayTasks"></div>
+  </div>
+  <p class="tbl-note" id="todayNote"></p>
+</section>
+
+<section id="s2">
+  <div class="sec-label"><span class="sec-no">2</span><h2 class="sec-title">最新一期体检</h2><span class="sec-hint" id="latestIssue"></span></div>
+  <div class="card">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px">
+        <p style="margin:0;font-size:17px;font-weight:700;line-height:1.55" id="latestTitle"></p>
+        <p style="margin:7px 0 0;font-size:12.5px;color:var(--ink3)" id="latestMeta"></p>
+      </div>
+      <div id="latestVerdict" style="padding-top:3px"></div>
+    </div>
+    <div class="metricbox" id="latestMetrics"></div>
+    <p class="tbl-note" id="latestWhy"></p>
+  </div>
+  <div class="card" style="padding:10px 12px 6px">
+    <table>
+      <thead><tr><th style="width:120px">平台</th><th style="width:104px">状态</th><th class="right" style="width:80px">展现</th><th class="right" style="width:80px">阅读</th><th class="right" style="width:84px">点击率</th><th>说明</th></tr></thead>
+      <tbody id="latestRows"></tbody>
+    </table>
+  </div>
+  <p class="tbl-note">判定口径：首日点击率 ≥1.5% 绿、1%—1.5% 黄、&lt;1% 红；展现 &gt;100 且阅读为 0 按红条处理；已发只认链接，无链接不算已发。</p>
+</section>
+
+<section id="s3">
+  <div class="sec-label"><span class="sec-no">3</span><h2 class="sec-title">平台与趋势</h2><span class="sec-hint" id="spanHint"></span></div>
+
+  <div class="card" style="padding:10px 12px 6px">
+    <table>
+      <thead><tr><th>平台</th><th class="right">作品</th><th class="right">展现</th><th class="right">阅读</th><th class="right">点击率</th><th class="right">粉丝</th></tr></thead>
+      <tbody id="platRows"></tbody>
+    </table>
+    <p class="tbl-note" id="platNote"></p>
+  </div>
+
+  <div class="chartbox" style="margin-top:12px">
+    <div class="chart-legend">
+      <span class="lg"><i></i>展现</span>
+      <span class="lg"><i class="dash"></i>阅读</span>
+      <span style="margin-left:auto;color:var(--ink3)" id="chartHint"></span>
+    </div>
+    <div id="chart"></div>
+  </div>
+
+  <div class="grid2" style="margin-top:12px">
+    <div class="card">
+      <div class="dw-h" style="margin-top:0">异常清单</div>
+      <div id="anomList"></div>
+    </div>
+    <div class="card">
+      <div class="dw-h" style="margin-top:0">粉丝（手填与未核查分开记）</div>
+      <table style="font-size:13px">
+        <thead><tr><th>平台</th><th class="right">粉丝</th><th>来源</th></tr></thead>
+        <tbody id="fanRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px;padding:10px 12px 6px">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px 12px;flex-wrap:wrap">
+      <span class="dw-h" style="margin:0">作品明细</span>
+      <span style="font-size:12px;color:var(--ink3)" id="worksCount"></span>
+      <span style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap" id="filters"></span>
+    </div>
+    <table>
+      <thead><tr><th style="width:76px">日期</th><th style="width:92px">平台</th><th>标题</th><th class="right" style="width:70px">展现</th><th class="right" style="width:62px">阅读</th><th style="width:92px">状态</th></tr></thead>
+      <tbody id="workRows"></tbody>
+    </table>
+    <p class="tbl-note">点任意一行看单篇详情。数据只追加不覆盖，历史不删改。</p>
+  </div>
+</section>
+
+<footer>
+  <div>数据来源：平台后台单篇面板（头条）+ 六平台后台核查；快照导出与抓取时刻见顶部状态带。</div>
+  <div>口径：点击率 = 阅读 ÷ 展现，未采集显示“—”；分母为 0 或缺失显示“—”，不出 100%；顶部汇总与明细不一致时亮“口径不一致”。</div>
+  <div>本页为静态只读快照，写操作（换标题、标已发、补粉丝）在数据中心里做，这里不提供。</div>
+</footer>
+</div>
+
+<div class="mask" id="mask"></div>
+<div class="drawer" id="drawer">
+  <div class="dw-head">
+    <button class="dw-close" id="dwClose">×</button>
+    <div class="dw-h" style="margin:0 0 6px" id="dwIssue"></div>
+    <div style="font-size:17px;font-weight:700;line-height:1.55;padding-right:34px" id="dwTitle"></div>
+    <div style="font-size:12.5px;color:var(--ink3);margin-top:6px" id="dwMeta"></div>
+  </div>
+  <div class="dw-body" id="dwBody"></div>
+</div>
+
+<script>
+const DATA = {"meta":{"kj":"部分不一致","anomCount":11,"grabTime":"2026-11-21 15:52","grabSrc":"头条单篇面板 + 11-21 10:31 导出","spanHint":"16 天 · 79 篇 · 29 个唯一选题","platNote":"展现只有今日头条采到（37,315）。其余五个平台展现未采集，所以点击率算不出，显示“—”，不填 0。阅读数是导出备份里的存量，来源未逐条核，标“未核”。","chartHint":"今日头条单日展现 · 11-04 → 11-19"},"today":{"date":"2026-11-21 周五","issue":"第20期 · 信用卡","title":"《一年少了3400万张信用卡：中年人不是戒卡，是不敢刷了》","tasks":[{"time":"17:30","name":"今日头条 · 首发","note":"1,183 字 · 3 图 · 小标题 3 个；段落合并到 20—26 段中。你本人点发布。","badge":"待你点发","badgeCls":"b-yellow"},{"time":"19:00","name":"微信公众号","note":"钩子在开头第 1 段后和结尾各一处；原创已勾。","badge":"草稿就绪","badgeCls":"b-green"},{"time":"明 08:30","name":"大鱼号（庚子院）","note":"标题用差异化版《工资一到账先还卡…他把六张卡全剪了》，正文有这句原文。","badge":"草稿就绪","badgeCls":"b-green"},{"time":"明 10:00","name":"百家号","note":"发前必须手动取消“自动生成播客”——平台默认勾选，存草稿留不住。","badge":"发前必查","badgeCls":"b-red"}],"note":"头条首发拿原创权重，其余三平台错峰，别挤在同一分钟同一篇。今天这条链后面接暖气费篇（11-22）。"},"latest":{"issue":"第19期 · 今日头条","title":"《眼看又到年底了，你的年终奖够还几个月房贷？》","meta":"2026-11-19 19:20 发布 · 财富焦虑 · 第 2 天","verdict":"弱篇，不折腾","vcls":"b-red","metrics":[{"k":"展现","v":"445","note":"面板 11-21 15:52"},{"k":"阅读","v":"0","note":"面板已核，0 属实"},{"k":"点击率","v":"0.00%","note":"445 展现换 0 阅读"},{"k":"已发平台","v":"1 / 6","note":"且缺链接"}],"why":"第 2 天新增 233 展现、0 阅读，和账单篇第 2 天同一档。换标题的窗口是首日 24 小时内，已过；现在只记事实，不再改标题。真正要补的是链接——按口径无链接不算已发。","rows":[{"platform":"今日头条","status":"已发·缺链接","scls":"b-yellow","imp":445,"reads":0,"note":"面板 11-21 15:52"},{"platform":"微信公众号","status":"草稿","scls":"b-grey","imp":null,"reads":null,"note":"没发"},{"platform":"大鱼号","status":"待发","scls":"b-grey","imp":null,"reads":null,"note":"没发"},{"platform":"百家号","status":"待发","scls":"b-grey","imp":null,"reads":null,"note":"没发"},{"platform":"企鹅号","status":"无记录","scls":"b-grey","imp":null,"reads":null,"note":"这期没建"},{"platform":"知乎","status":"无记录","scls":"b-grey","imp":null,"reads":null,"note":"这期没建"}]},"platforms":[{"platform":"今日头条","works":19,"imp":37315,"reads":72,"fans":21},{"platform":"微信公众号","works":15,"imp":null,"reads":13,"fans":2},{"platform":"大鱼号","works":13,"imp":null,"reads":151,"fans":null},{"platform":"百家号","works":16,"imp":null,"reads":69,"fans":30},{"platform":"企鹅号","works":7,"imp":null,"reads":0,"fans":null},{"platform":"知乎","works":9,"imp":null,"reads":34,"fans":null}],"trend":[{"date":"2026-11-04","imp":2207,"reads":0},{"date":"2026-11-05","imp":2905,"reads":2},{"date":"2026-11-06","imp":3013,"reads":3},{"date":"2026-11-07","imp":6182,"reads":30},{"date":"2026-11-08","imp":3181,"reads":0},{"date":"2026-11-09","imp":3117,"reads":0},{"date":"2026-11-10","imp":2987,"reads":5},{"date":"2026-11-11","imp":2748,"reads":3},{"date":"2026-11-12","imp":2318,"reads":0},{"date":"2026-11-13","imp":2312,"reads":10},{"date":"2026-11-14","imp":1914,"reads":0},{"date":"2026-11-15","imp":1451,"reads":0},{"date":"2026-11-16","imp":1066,"reads":0},{"date":"2026-11-17","imp":675,"reads":0},{"date":"2026-11-18","imp":970,"reads":19},{"date":"2026-11-19","imp":269,"reads":0}],"works":[{"id":78,"date":"2026-11-19","platform":"今日头条","title":"你有多久，没为自己活过一天了？","category":"人生感悟","issue":"第16期","imp":57,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":"第1天复盘：首日 57 展现 0 读，是近期新篇首日展现最低的一档（账单篇首日 193、快乐篇首日 345、AI 篇首日 613）；18:08 发布曝光时间短是一方面，但同天 19:20 发的年终奖篇首日有 212 展现，推量确实弱，明天看第 2 天再定论。"},{"id":79,"date":"2026-11-19","platform":"今日头条","title":"眼看又到年底了，你的年终奖够还几个月房贷？","category":"财富焦虑","issue":"第16期","imp":212,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":"第1天复盘：首日 212 展现 0 读，与账单篇首日（193 展现 0 读）同一档，远弱于 AI 篇首日（613 展现 18 读）；19:20 才发是一方面，明天看第 2 天再定论。"},{"id":74,"date":"2026-11-18","platform":"知乎","title":"兄弟姐妹越长大越生分？中年人心里都有一笔账","category":"情感话题","issue":"第15期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2106451979027341532","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":75,"date":"2026-11-18","platform":"百家号","title":"54 岁学 AI 做短剧登顶红果榜：普通人一年还清债务，靠的是什么？","category":"财富焦虑","issue":"第15期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1882191983582872960","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":77,"date":"2026-11-18","platform":"微信公众号","title":"别人54岁学AI拍短剧登了顶，我却还在还债：差的到底是什么？","category":"财富焦虑","issue":"第15期","imp":null,"reads":0,"status":"待确认","scls":"b-grey","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":76,"date":"2026-11-18","platform":"大鱼号","title":"54 岁大哥靠 AI 短剧翻身：普通人一年还清债，差的到底是什么？","category":"财富焦虑","issue":"第15期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=30f07a2d36264418a79706d4bf9200cc","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":60,"date":"2026-11-18","platform":"企鹅号","title":"双十一的账单到了：中年人，先还哪一张？","category":"财富焦虑","issue":"第15期","imp":null,"reads":0,"status":"待确认","scls":"b-grey","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":73,"date":"2026-11-18","platform":"今日头条","title":"别人54岁学AI拍短剧登了顶，我却还在还债：差的到底是什么？","category":"财富焦虑","issue":"第15期","imp":970,"reads":19,"status":"已发","scls":"b-green","url":"https://www.toutiao.com/article/7709454216217805354/","cr":25.2,"inter":3,"src":"头条单篇面板","note":"第1天复盘：首日 613 展现 18 读、点击率 2.9%，近期新篇首日最强；完读率仅 11.9%，正文没留住人。第2天复盘：累计 970 展现 19 读，第 2 天新增 357 展现 1 读；完读率回升到 25.2%、平均 1:11，留存改善；但阅读增长弱于存款篇第 2 天（+4）和退路篇第 2 天（+4），推量还在、转化在掉。"},{"id":59,"date":"2026-11-17","platform":"知乎","title":"双十一的账单到了：中年人，先还哪一张？","category":"财富焦虑","issue":"第14期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2106118846113497811","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":57,"date":"2026-11-17","platform":"百家号","title":"双十一的账单到了：中年人，先还哪一张？","category":"财富焦虑","issue":"第14期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1882104089300354090","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":56,"date":"2026-11-17","platform":"微信公众号","title":"双十一的账单到了：中年人，先还哪一张？","category":"财富焦虑","issue":"第14期","imp":null,"reads":2,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/9osNqAVXQsfMSR8ilTbjig","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":58,"date":"2026-11-17","platform":"大鱼号","title":"双十一的账单到了：中年人，先还哪一张？","category":"财富焦虑","issue":"第14期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=04768ea04e3c42139ad7d1ad626c2d05","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":55,"date":"2026-11-17","platform":"今日头条","title":"双十一的账单到了：中年人，先还哪一张？","category":"","issue":"第14期","imp":675,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":"第3天复盘：累计 675 展现 0 读，第 3 天新增 249 展现仍 0 读，连续三天 0 读，定性弱篇，复盘关闭。"},{"id":72,"date":"2026-11-16","platform":"知乎","title":"中年人的快乐，为什么越来越贵？","category":"人生感悟","issue":"第13期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105722873843283149","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":69,"date":"2026-11-16","platform":"百家号","title":"中年人的快乐，为什么越来越贵？","category":"人生感悟","issue":"第13期","imp":null,"reads":12,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1882012697288044693","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":68,"date":"2026-11-16","platform":"微信公众号","title":"中年人的快乐，为什么越来越贵？","category":"人生感悟","issue":"第13期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/e0EALG1zNf_P0Q1gjZFbhQ","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":70,"date":"2026-11-16","platform":"大鱼号","title":"中年人的快乐，为什么越来越贵？","category":"人生感悟","issue":"第13期","imp":null,"reads":5,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=249ba385c1b340e5848143cc42f402c8","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":71,"date":"2026-11-16","platform":"企鹅号","title":"中年人的快乐，为什么越来越贵？","category":"人生感悟","issue":"第13期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://page.om.qq.com/page/ODhWK3PTEK4A3x4kUDmQjhdg0","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":67,"date":"2026-11-16","platform":"今日头条","title":"中年人的快乐，为什么越来越贵？","category":"","issue":"第13期","imp":1066,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":66,"date":"2026-11-15","platform":"知乎","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"情感话题","issue":"第12期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105343900231677254","cr":null,"inter":1,"src":"导出备份·未核","note":""},{"id":63,"date":"2026-11-15","platform":"百家号","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"情感话题","issue":"第12期","imp":null,"reads":10,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881915476293314595","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":62,"date":"2026-11-15","platform":"微信公众号","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"情感话题","issue":"第12期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/5uXcixldx-vf_LueycPOUA","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":64,"date":"2026-11-15","platform":"大鱼号","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"情感话题","issue":"第12期","imp":null,"reads":3,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":65,"date":"2026-11-15","platform":"企鹅号","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"情感话题","issue":"第12期","imp":null,"reads":0,"status":"待确认","scls":"b-grey","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":61,"date":"2026-11-15","platform":"今日头条","title":"孩子越大，话越少？中年父母的失落，没人提过","category":"","issue":"第12期","imp":1451,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":43,"date":"2026-11-14","platform":"知乎","title":"为什么年轻时听不懂的歌，人到中年一听就哭了？","category":"人生感悟","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105015620400050619","cr":null,"inter":1,"src":"导出备份·未核","note":""},{"id":44,"date":"2026-11-14","platform":"知乎","title":"你的存款，够你失业几个月？","category":"财富焦虑","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105017622244881063","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":45,"date":"2026-11-14","platform":"知乎","title":"中年人最大的心酸是什么？","category":"人生感悟","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105010308322534888","cr":null,"inter":1,"src":"导出备份·未核","note":""},{"id":46,"date":"2026-11-14","platform":"知乎","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"财富焦虑","issue":"第11期","imp":null,"reads":32,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105003340924974274","cr":null,"inter":1,"src":"导出备份·未核","note":""},{"id":47,"date":"2026-11-14","platform":"知乎","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"情感话题","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://zhuanlan.zhihu.com/p/2105013751153942731","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":24,"date":"2026-11-14","platform":"百家号","title":"中年人最大的心酸是什么？","category":"人生感悟","issue":"第11期","imp":null,"reads":9,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/builder/preview/s?id=1881801343871428078","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":25,"date":"2026-11-14","platform":"百家号","title":"人到中年，为什么存钱要悄悄？","category":"财富焦虑","issue":"第11期","imp":null,"reads":7,"status":"已发","scls":"b-green","url":"https://mbd.baidu.com/newspage/data/landingshare?preview=1&pageType=1&isBdboxFrom=1&context=%7B%22nid%22%3A%22news_9997425877704680203%22%2C%22sourceFrom%22%3A%22bjh%22%7D","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":30,"date":"2026-11-14","platform":"百家号","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"财富焦虑","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/builder/preview/s?id=1881825363778657277","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":31,"date":"2026-11-14","platform":"百家号","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"情感话题","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881828685072358654","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":33,"date":"2026-11-14","platform":"百家号","title":"双十一又来了，中年人到底在为什么买单？","category":"财富焦虑","issue":"第11期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881834521309766588","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":34,"date":"2026-11-14","platform":"百家号","title":"为什么年轻时听不懂的歌，人到中年一听就哭了？","category":"人生感悟","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/builder/preview/s?id=1881832137028730925","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":36,"date":"2026-11-14","platform":"百家号","title":"中年夫妻，吵的到底是那件小事吗？","category":"情感话题","issue":"第11期","imp":null,"reads":2,"status":"已发","scls":"b-green","url":"https://mbd.baidu.com/newspage/data/landingshare?preview=1&pageType=1&isBdboxFrom=1&context=%7B%22nid%22%3A%22news_9647023088308139829%22%2C%22sourceFrom%22%3A%22bjh%22%7D","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":38,"date":"2026-11-14","platform":"百家号","title":"你的存款，够你失业几个月？","category":"财富焦虑","issue":"第11期","imp":null,"reads":6,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/builder/preview/s?id=1881833088366051436","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":48,"date":"2026-11-14","platform":"百家号","title":"中年人的退路，到底是什么","category":"财富焦虑","issue":"第11期","imp":null,"reads":10,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881839197399719620","cr":null,"inter":1,"src":"导出备份·未核","note":""},{"id":49,"date":"2026-11-14","platform":"百家号","title":"你有没有发现，父母老去的速度比你想象得快？","category":"情感话题","issue":"第11期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881836639263748447","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":50,"date":"2026-11-14","platform":"百家号","title":"体检单上的第一个箭头，到底意味着什么？","category":"人生感悟","issue":"第11期","imp":null,"reads":8,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881837796354940371","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":51,"date":"2026-11-14","platform":"百家号","title":"人到中年，为什么朋友越少越好？","category":"情感话题","issue":"第11期","imp":null,"reads":3,"status":"已发","scls":"b-green","url":"https://baijiahao.baidu.com/s?id=1881835681596244895","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":23,"date":"2026-11-14","platform":"微信公众号","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"财富焦虑","issue":"第11期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/IrKzTRjn4Hr1Vo9XlfXOYw","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":26,"date":"2026-11-14","platform":"大鱼号","title":"人到中年，为什么存钱要悄悄？","category":"财富焦虑","issue":"第11期","imp":null,"reads":41,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=c69b1985e23d4d15b25cbb65ae38b49f","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":27,"date":"2026-11-14","platform":"大鱼号","title":"中年人最大的心酸是什么？","category":"人生感悟","issue":"第11期","imp":null,"reads":5,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=f06fd86da31247d389da8cc911dccd8f","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":29,"date":"2026-11-14","platform":"大鱼号","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"财富焦虑","issue":"第11期","imp":null,"reads":42,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":32,"date":"2026-11-14","platform":"大鱼号","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"情感话题","issue":"第11期","imp":null,"reads":2,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=28a1b7aee5cb455784b1913b68dabc6d","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":35,"date":"2026-11-14","platform":"大鱼号","title":"中年夫妻，吵的到底是那件小事吗？","category":"情感话题","issue":"第11期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=3988902892e8482e8f9703b75fa59656","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":37,"date":"2026-11-14","platform":"大鱼号","title":"为什么年轻时听不懂的歌，人到中年一听就哭了？","category":"人生感悟","issue":"第11期","imp":null,"reads":47,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=8ea6bc0a3f0f4266adc2f3c6a7fb4c39","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":39,"date":"2026-11-14","platform":"大鱼号","title":"双十一又来了，中年人到底在为什么买单？","category":"财富焦虑","issue":"第11期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=21708d25c7394489940822accf3ce399","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":40,"date":"2026-11-14","platform":"大鱼号","title":"你的存款，够你失业几个月？","category":"财富焦虑","issue":"第11期","imp":null,"reads":4,"status":"已发","scls":"b-green","url":"https://mparticle.uc.cn/article.html?uc_param_str=frdnsnpfvecpntnwprdssskt&wm_aid=7285997337e346748906f76020c58365","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":54,"date":"2026-11-14","platform":"大鱼号","title":"人到中年，为什么朋友越少越好？","category":"情感话题","issue":"第11期","imp":null,"reads":0,"status":"待确认","scls":"b-grey","url":"","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":41,"date":"2026-11-14","platform":"企鹅号","title":"人到中年，为什么存钱要悄悄？","category":"财富焦虑","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://page.om.qq.com/page/OGJs0pLe7ON5t7HuU0D2mrjQ0","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":42,"date":"2026-11-14","platform":"企鹅号","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"财富焦虑","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://page.om.qq.com/page/ObHja1rTgYo5FyEJB2khA8Zw0","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":52,"date":"2026-11-14","platform":"企鹅号","title":"中年人最大的心酸是什么？","category":"人生感悟","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://page.om.qq.com/page/O3nyg8bYlwo8znz4FOHXVQfw0","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":53,"date":"2026-11-14","platform":"企鹅号","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"情感话题","issue":"第11期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://page.om.qq.com/page/OAPNwl9mE-Pc_RT2rqydrxCA0","cr":null,"inter":0,"src":"导出备份·未核","note":""},{"id":22,"date":"2026-11-14","platform":"今日头条","title":"中年人最大的心酸是什么？","category":"","issue":"第11期","imp":69,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":28,"date":"2026-11-14","platform":"今日头条","title":"工资到账三天就见底？中年人的钱到底去哪了","category":"","issue":"第11期","imp":1845,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":19,"date":"2026-11-13","platform":"微信公众号","title":"中年人的退路，到底是什么","category":"财富焦虑","issue":"第10期","imp":null,"reads":3,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/AyNjOPG6LZsSE9BCkac6Eg","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":9,"date":"2026-11-13","platform":"今日头条","title":"中年人的退路，到底是什么","category":"","issue":"第10期","imp":2312,"reads":10,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":23.2,"inter":0,"src":"头条单篇面板","note":""},{"id":20,"date":"2026-11-12","platform":"微信公众号","title":"体检单上的第一个箭头，是中年的开场白","category":"人生感悟","issue":"第9期","imp":null,"reads":2,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/ezFhXjeTtcv3MruiTNtJjA","cr":50,"inter":1,"src":"导出备份·未核","note":""},{"id":18,"date":"2026-11-12","platform":"今日头条","title":"体检单上的第一个箭头，是中年的开场白","category":"","issue":"第9期","imp":2318,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":12,"date":"2026-11-11","platform":"微信公众号","title":"父母老去的速度，比你想象得快","category":"情感话题","issue":"第8期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/tzKWtWEMSVwUS1w046p0Bg","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":11,"date":"2026-11-11","platform":"今日头条","title":"父母老去的速度，比你想象得快","category":"","issue":"第8期","imp":2748,"reads":3,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":21,"date":"2026-11-10","platform":"微信公众号","title":"人到中年，朋友越少越好","category":"人生感悟","issue":"第7期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/RVeKAL8_5XSMWz4qkcwd8g","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":15,"date":"2026-11-10","platform":"今日头条","title":"人到中年，朋友越少越好","category":"","issue":"第7期","imp":2987,"reads":5,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":49.5,"inter":0,"src":"头条单篇面板","note":""},{"id":13,"date":"2026-11-09","platform":"微信公众号","title":"双十一又来了：中年人，正在为“便宜”买单","category":"财富焦虑","issue":"第6期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/-LvKH6JoII_UR5G5MJjcWQ","cr":100,"inter":0,"src":"导出备份·未核","note":""},{"id":10,"date":"2026-11-09","platform":"今日头条","title":"双十一又来了：中年人，正在为“便宜”买单","category":"","issue":"第6期","imp":3117,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":8,"date":"2026-11-08","platform":"微信公众号","title":"中年夫妻，吵的从来不是那件小事","category":"情感话题","issue":"第5期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/4TmCfE92ddq6CdDAmrItsw","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":16,"date":"2026-11-08","platform":"今日头条","title":"中年夫妻，吵的从来不是那件小事","category":"","issue":"第5期","imp":3181,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":17,"date":"2026-11-07","platform":"微信公众号","title":"你的存款，够你失业几个月？","category":"财富焦虑","issue":"第4期","imp":null,"reads":0,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/GjqmmaH-_j0TB9aNSvf0rA","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":4,"date":"2026-11-07","platform":"今日头条","title":"人到中年才懂：你攒的不是钱，是退路","category":"","issue":"第4期","imp":2532,"reads":4,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""},{"id":14,"date":"2026-11-07","platform":"今日头条","title":"你的存款，够你失业几个月？","category":"","issue":"第4期","imp":3650,"reads":26,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":25.9,"inter":2,"src":"头条单篇面板","note":""},{"id":7,"date":"2026-11-06","platform":"微信公众号","title":"年少不识曲中意，听懂已是中年人","category":"人生感悟","issue":"第3期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/stXbAYZREKNwSY1baD0INg","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":3,"date":"2026-11-06","platform":"今日头条","title":"年少不识曲中意，听懂已是中年人","category":"","issue":"第3期","imp":3013,"reads":3,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":79.7,"inter":0,"src":"头条单篇面板","note":""},{"id":6,"date":"2026-11-05","platform":"微信公众号","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"情感话题","issue":"第2期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/J-_f0aFsrC1y8v9QpUmm7w","cr":100,"inter":0,"src":"导出备份·未核","note":""},{"id":2,"date":"2026-11-05","platform":"今日头条","title":"30岁没结婚，真的有问题吗？婚姻是选项，不是KPI","category":"","issue":"第2期","imp":2905,"reads":2,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":50,"inter":0,"src":"头条单篇面板","note":""},{"id":5,"date":"2026-11-04","platform":"微信公众号","title":"人到中年，存钱要悄悄：你攒的不是钱，是退路","category":"财富焦虑","issue":"第1期","imp":null,"reads":1,"status":"已发","scls":"b-green","url":"https://mp.weixin.qq.com/s/ojY97ns2vU0hGMsRD3XQPg","cr":0,"inter":0,"src":"导出备份·未核","note":""},{"id":1,"date":"2026-11-04","platform":"今日头条","title":"人到中年，存钱要悄悄：你攒的不是钱，是退路","category":"","issue":"第1期","imp":2207,"reads":0,"status":"已发·缺链接","scls":"b-yellow","url":"","cr":null,"inter":0,"src":"头条单篇面板","note":""}],"anomalies":[{"issue":"第1期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"存钱篇 2,207 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第5期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"夫妻篇 3,181 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第6期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"双十一篇 3,117 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第9期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"体检单篇 2,318 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第11期","platform":"今日头条","rule":"R9 展现未过 100","fact":"心酸篇 69 展现，0 阅读（低展现首日属正常）","verdict":"误报","vcls":"b-grey"},{"issue":"第12期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"工资篇 1,845 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第13期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"孩子篇 1,451 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第14期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"快乐篇 1,066 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第15期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"账单篇 675 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"},{"issue":"第18期","platform":"今日头条","rule":"R9 展现未过 100","fact":"为自己活篇 57 展现，0 阅读（低展现首日属正常）","verdict":"误报","vcls":"b-grey"},{"issue":"第19期","platform":"今日头条","rule":"R9 展现>100 阅读 0","fact":"年终奖篇 445 展现，0 阅读","verdict":"待核同源","vcls":"b-yellow"}],"followers":[{"platform":"今日头条","fans":21,"src":"手填 · 11-07 后台核"},{"platform":"微信公众号","fans":2,"src":"手填 · 11-07 后台核"},{"platform":"百家号","fans":30,"src":"手填 · 11-14 核"},{"platform":"大鱼号","fans":null,"src":"未核查"},{"platform":"企鹅号","fans":null,"src":"未核查"},{"platform":"知乎","fans":null,"src":"未核查"}]};
+</script>
+<script>
+(function(){
+  const D = DATA;
+  const fmt = n => (n===null||n===undefined) ? null : Number(n).toLocaleString('zh-CN');
+  const nodata = '<span class="nodata">未采集</span>';
+  const PLATDOT = {'今日头条':'#f04142','微信公众号':'#07c160','大鱼号':'#1677ff','百家号':'#2b6de8','企鹅号':'#12b7f5','知乎':'#0066ff'};
+  const dot = p => `<span class="pdot" style="background:${PLATDOT[p]||'#999'}"></span>`;
+  const ctrText = (imp,reads) => {
+    if(imp===null||imp===undefined||reads===null||reads===undefined||imp<=0) return '—';
+    return ((reads/imp)*100).toFixed(2)+'%';
+  };
+
+  /* 顶部 KPI */
+  const totWorks = D.works.length;
+  const totImp = D.platforms.reduce((s,p)=>s+(p.imp||0),0);
+  const totRead = D.platforms.reduce((s,p)=>s+(p.reads||0),0);
+  const totFan = D.followers.reduce((s,f)=>s+(f.fans||0),0);
+  document.getElementById('kpis').innerHTML = [
+    ['作品', totWorks, '篇', '16 天 · 29 个唯一选题'],
+    ['总展现', fmt(totImp), '', '仅头条有展现数据'],
+    ['总阅读', fmt(totRead), '', '六平台存量合计'],
+    ['已核查粉丝', fmt(totFan), '', '另 3 平台未核查']
+  ].map(k=>`<div class="kpi"><p class="kpi-k">${k[0]}</p><p class="kpi-v num">${k[1]}<small>${k[2]}</small></p><p class="kpi-note">${k[3]}</p></div>`).join('');
+
+  /* 状态带 */
+  document.getElementById('sbKjText').textContent = '口径 ' + D.meta.kj;
+  const a = document.getElementById('sbAnom');
+  a.textContent = '异常 ' + D.meta.anomCount + ' 条';
+  a.title = '点击查看异常清单';
+  a.addEventListener('click', ()=>document.getElementById('anomList').scrollIntoView({behavior:'smooth',block:'center'}));
+  document.getElementById('sbTime').textContent = D.meta.grabTime;
+  document.getElementById('sbSrc').textContent = D.meta.grabSrc;
+
+  /* 第一段 */
+  document.getElementById('todayDate').textContent = D.today.date;
+  document.getElementById('todayIssue').textContent = D.today.issue;
+  document.getElementById('todayTitle').textContent = D.today.title;
+  document.getElementById('todayTasks').innerHTML = D.today.tasks.map(t => `
+    <div class="task">
+      <div class="task-time num">${t.time}</div>
+      <div class="task-main">
+        <p class="task-name">${t.name}</p>
+        <p class="task-note">${t.note||''}</p>
+      </div>
+      <div class="task-right">${t.badge?`<span class="badge ${t.badgeCls||'b-grey'}">${t.badge}</span>`:''}</div>
+    </div>`).join('');
+  document.getElementById('todayNote').textContent = D.today.note;
+
+  /* 第二段 */
+  document.getElementById('latestIssue').textContent = D.latest.issue;
+  document.getElementById('latestTitle').textContent = D.latest.title;
+  document.getElementById('latestMeta').textContent = D.latest.meta;
+  document.getElementById('latestVerdict').innerHTML = `<span class="badge ${D.latest.vcls||'b-grey'}">${D.latest.verdict}</span>`;
+  document.getElementById('latestMetrics').innerHTML = D.latest.metrics.map(m=>`
+    <div class="metric">
+      <p class="metric-k">${m.k}</p>
+      <p class="metric-v num">${m.v}</p>
+      <p class="metric-note">${m.note||''}</p>
+    </div>`).join('');
+  document.getElementById('latestWhy').textContent = D.latest.why;
+  document.getElementById('latestRows').innerHTML = D.latest.rows.map(r=>`
+    <tr>
+      <td>${dot(r.platform)}${r.platform}</td>
+      <td><span class="badge ${r.scls}">${r.status}</span></td>
+      <td class="right num">${r.imp===null?nodata:fmt(r.imp)}</td>
+      <td class="right num">${r.reads===null?nodata:fmt(r.reads)}</td>
+      <td class="right num">${r.imp===null?'—':ctrText(r.imp,r.reads)}</td>
+      <td style="color:var(--ink3);font-size:12.5px">${r.note||''}</td>
+    </tr>`).join('');
+
+  /* 第三段 */
+  document.getElementById('spanHint').textContent = D.meta.spanHint;
+  document.getElementById('platRows').innerHTML = D.platforms.map(p=>`
+    <tr>
+      <td>${dot(p.platform)}${p.platform}</td>
+      <td class="right num">${p.works}</td>
+      <td class="right num">${p.imp===null?nodata:fmt(p.imp)}</td>
+      <td class="right num">${p.reads===null?nodata:fmt(p.reads)}</td>
+      <td class="right num">${p.imp===null?'—':ctrText(p.imp,p.reads)}</td>
+      <td class="right num">${p.fans===null?nodata:fmt(p.fans)}</td>
+    </tr>`).join('');
+  document.getElementById('platNote').textContent = D.meta.platNote;
+
+  renderChart(D.trend);
+  function renderChart(tr){
+    const W=920,H=250,P={l:48,r:18,t:18,b:30};
+    const iw=W-P.l-P.r, ih=H-P.t-P.b;
+    const maxImp=Math.max(...tr.map(d=>d.imp),1);
+    const maxRead=Math.max(...tr.map(d=>d.reads),1);
+    const x=i=>P.l+ (tr.length<=1?iw/2: iw*i/(tr.length-1));
+    const yImp=v=>P.t+ih-v/maxImp*ih;
+    const yRead=v=>P.t+ih-v/maxRead*ih;
+    const path=(f)=>tr.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${f(d).toFixed(1)}`).join(' ');
+    const area = path(d=>yImp(d.imp)) + ` L${x(tr.length-1).toFixed(1)},${P.t+ih} L${x(0).toFixed(1)},${P.t+ih} Z`;
+    let grid='';
+    for(let g=0;g<=4;g++){const yy=P.t+ih*g/4;grid+=`<line x1="${P.l}" y1="${yy}" x2="${W-P.r}" y2="${yy}" stroke="#f0ebe0"/>`;
+      grid+=`<text x="${P.l-8}" y="${yy+4}" text-anchor="end" font-size="10.5" fill="#a49a88">${Math.round(maxImp*(1-g/4)/100)*100}</text>`;}
+    let labels=tr.map((d,i)=> i%3===0||i===tr.length-1 ? `<text x="${x(i)}" y="${H-9}" text-anchor="middle" font-size="10.5" fill="#a49a88">${d.date.slice(5)}</text>` : '').join('');
+    let dots=tr.map((d,i)=>`<circle cx="${x(i)}" cy="${yImp(d.imp)}" r="3" fill="#fff" stroke="#b5533a" stroke-width="2"/>`).join('');
+    document.getElementById('chart').innerHTML=`
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+        <defs><linearGradient id="gimp" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#b5533a" stop-opacity=".18"/>
+          <stop offset="1" stop-color="#b5533a" stop-opacity="0"/>
+        </linearGradient></defs>
+        ${grid}${labels}
+        <path d="${area}" fill="url(#gimp)"/>
+        <path d="${path(d=>yImp(d.imp))}" fill="none" stroke="#b5533a" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="${path(d=>yRead(d.reads))}" fill="none" stroke="#c58a2a" stroke-width="2" stroke-dasharray="5 4"/>
+        ${dots}
+      </svg>`;
+    document.getElementById('chartHint').textContent = D.meta.chartHint;
+  }
+
+  document.getElementById('anomList').innerHTML = D.anomalies.map(a=>`
+    <div class="anom">
+      <div class="anom-tag num">${a.issue} · ${a.platform}</div>
+      <div style="flex:1">
+        <div>${a.fact}</div>
+        <div style="font-size:12px;margin-top:3px">
+          <span class="badge ${a.vcls}">${a.verdict}</span>
+          <span style="color:var(--ink3);margin-left:6px">${a.rule}</span>
+        </div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('fanRows').innerHTML = D.followers.map(f=>`
+    <tr><td>${dot(f.platform)}${f.platform}</td><td class="right num">${f.fans===null?nodata:fmt(f.fans)}</td>
+    <td style="font-size:12px;color:var(--ink3)">${f.src}</td></tr>`).join('');
+
+  let curFilter='全部';
+  const plats=['全部',...new Set(D.works.map(w=>w.platform))];
+  document.getElementById('filters').innerHTML = plats.map((p,i)=>
+    `<button data-p="${p}" class="badge ${i===0?'b-dark':'b-grey'}" style="cursor:pointer">${p}</button>`).join('');
+  document.getElementById('filters').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    curFilter=b.dataset.p;
+    [...e.currentTarget.querySelectorAll('button')].forEach(x=>{
+      const on = x.dataset.p===curFilter;
+      x.className='badge '+(on?'b-dark':'b-grey'); x.style.cursor='pointer';
+    });
+    paintWorks();
+  });
+  function paintWorks(){
+    const list = D.works.filter(w=>curFilter==='全部'||w.platform===curFilter);
+    document.getElementById('worksCount').textContent = list.length + ' 条';
+    document.getElementById('workRows').innerHTML = list.map(w=>`
+      <tr class="wrow" data-id="${w.id}">
+        <td class="num" style="color:var(--ink2)">${w.date.slice(5)}</td>
+        <td style="font-size:12.5px">${dot(w.platform)}${w.platform}</td>
+        <td class="t" title="${w.title}">${w.title}</td>
+        <td class="right num">${w.imp===null?nodata:fmt(w.imp)}</td>
+        <td class="right num">${w.reads===null?nodata:fmt(w.reads)}</td>
+        <td><span class="badge ${w.scls}">${w.status}</span></td>
+      </tr>`).join('');
+  }
+  paintWorks();
+
+  const mask=document.getElementById('mask'), drawer=document.getElementById('drawer');
+  function closeDw(){mask.classList.remove('on');drawer.classList.remove('on');}
+  mask.addEventListener('click',closeDw);
+  document.getElementById('dwClose').addEventListener('click',closeDw);
+  document.getElementById('workRows').addEventListener('click',e=>{
+    const tr=e.target.closest('tr'); if(!tr) return;
+    const w=D.works.find(x=>String(x.id)===tr.dataset.id); if(!w) return;
+    document.getElementById('dwIssue').textContent = w.issue || '单篇详情';
+    document.getElementById('dwTitle').textContent = w.title;
+    document.getElementById('dwMeta').textContent = dot(w.platform)+w.platform+' · '+w.date+' · '+(w.category||'未分类');
+    const rows = [
+      ['状态', `<span class="badge ${w.scls}">${w.status}</span>`],
+      ['展现', w.imp===null?nodata:fmt(w.imp)],
+      ['阅读', w.reads===null?nodata:fmt(w.reads)],
+      ['点击率', w.imp===null?'—':ctrText(w.imp,w.reads)],
+      ['完读率', w.cr===null?nodata:w.cr+'%'],
+      ['互动', w.inter===null?nodata:fmt(w.inter)],
+      ['链接', w.url?`<a href="${w.url}" target="_blank" rel="noopener" style="color:var(--accent)">打开</a>`:'<span style="color:var(--red)">缺链接</span>'],
+      ['数据来源', w.src||'未标源'],
+    ];
+    document.getElementById('dwBody').innerHTML =
+      `<div class="dw-h">指标</div>` + rows.map(r=>`<div class="dw-line"><span>${r[0]}</span><span style="text-align:right">${r[1]}</span></div>`).join('') +
+      `<div class="dw-h">写操作</div>` +
+      `<div class="op"><span>换标题</span><button disabled title="静态页只读">去数据中心做</button></div>` +
+      `<div class="op"><span>标已发（补链接）</span><button disabled title="静态页只读">去数据中心做</button></div>` +
+      `<div class="op"><span>补粉丝</span><button disabled title="静态页只读">去数据中心做</button></div>` +
+      (w.note?`<div class="dw-h">复盘备注</div><div style="font-size:13px;color:var(--ink2);line-height:1.8">${w.note}</div>`:'');
+    mask.classList.add('on'); drawer.classList.add('on');
+  });
+})();
+</script>
+</body>
+</html>
