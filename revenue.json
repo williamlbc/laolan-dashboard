@@ -2,7 +2,7 @@
  "meta": {
   "updatedAt": "2026-11-21 21:10",
   "unit": "元",
-  "note": "金额一律记平台后台原始数字，单位元、保留两位。预估收益与已结算分开记（month=当月累计、total=开户至今累计、pending=待结算），三者不许混算。未采集写 null，页面显示“未采集”，绝不填 0。"
+  "note": "金额一律记平台后台原始数字，单位元、保留两位。预估收益与已结算分开记（month=当月累计、total=开户至今累计、pending=待结算），三者不许混算。未采集写 null，页面显示“未采集”，绝不填 0。 2026-11-23 起只保留四个平台（今日头条、微信公众号、百家号、知乎）。"
  },
  "plats": [
   {
@@ -32,19 +32,6 @@
    "collectAt": "2026-11-21 21:10"
   },
   {
-   "platform": "大鱼号",
-   "account": "庚子院",
-   "yesterday": null,
-   "month": 0.0,
-   "total": null,
-   "pending": null,
-   "unit": "元 / 万阅读",
-   "cpm": null,
-   "settle": "结算中心·次月",
-   "src": "大鱼号后台·首页（本月 ￥0 / 上月 ￥0）",
-   "collectAt": "2026-11-21 21:10"
-  },
-  {
    "platform": "百家号",
    "account": "老兰的下半场",
    "yesterday": 0.0,
@@ -55,19 +42,6 @@
    "cpm": null,
    "settle": "次月结算",
    "src": "百家号首页（年度累计总收入 0.05 / 近30天分润 0.03）",
-   "collectAt": "2026-11-21 21:10"
-  },
-  {
-   "platform": "企鹅号",
-   "account": "老兰的下半场",
-   "yesterday": null,
-   "month": null,
-   "total": 0.0,
-   "pending": null,
-   "unit": "元 / 万阅读",
-   "cpm": null,
-   "settle": "收益广场·次月",
-   "src": "企鹅号首页·累计已发布收益 0 元",
    "collectAt": "2026-11-21 21:10"
   },
   {
